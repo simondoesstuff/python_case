@@ -1,7 +1,7 @@
 import os
 import typer
 from pathlib import Path
-from .rename import refactor_source, refactor_directory
+from .core import refactor_source, refactor_directory
 import difflib
 
 app = typer.Typer()
@@ -50,38 +50,55 @@ def process_file(file_path: str, dry_run: bool, to_stdout: bool):
 
 @app.command()
 def main(
-    path: str,
+    path: str = typer.Argument(help="Path to Python file or directory to refactor"),
     dry_run: bool = typer.Option(
-        False, "--dry-run", help="Show changes without writing to files."
+        False, "--dry-run", "-n", help="Show changes without writing to files."
     ),
     to_stdout: bool = typer.Option(
-        False, "--stdout", help="Print the refactored code to stdout."
+        False, "--stdout", help="Print the refactored code to stdout (single files only)."
     ),
     rename_files: bool = typer.Option(
-        False, "--rename-files", help="Also rename files and directories to pythonic conventions."
+        False, "--rename-files", "-r", help="Also rename files and directories to pythonic conventions."
+    ),
+    verbose: bool = typer.Option(
+        False, "--verbose", "-v", help="Show detailed output during processing."
     ),
 ):
     """
-    Refactor a Python file or directory to Pythonic naming conventions.
+    Refactor Python code to Pythonic naming conventions.
+    
+    Converts camelCase to snake_case for variables/functions and PascalCase for classes,
+    while preserving external library calls and PascalCase imports.
+    
+    Examples:
+        rename-py my_file.py --dry-run
+        rename-py src/ --rename-files --verbose
+        rename-py project/ --rename-files
     """
     path_obj = Path(path)
     
+    if not path_obj.exists():
+        print(f"Error: Path '{path}' does not exist.")
+        raise typer.Exit(code=1)
+    
     if path_obj.is_file():
-        if path.endswith(".py"):
-            process_file(path, dry_run, to_stdout)
-        else:
-            print(f"Skipping non-Python file: {path}")
+        if not path.endswith(".py"):
+            print(f"Error: '{path}' is not a Python file.")
+            raise typer.Exit(code=1)
+        process_file(path, dry_run, to_stdout)
     elif path_obj.is_dir():
+        if to_stdout:
+            print("Error: --stdout option is only supported for single files.")
+            raise typer.Exit(code=1)
         if rename_files:
-            # Use the new directory refactoring function
             refactor_directory(path_obj, rename_files=True, dry_run=dry_run)
         else:
-            # Use the original file-by-file approach
+            # Use the original file-by-file approach for directories without file renaming
             for root, _, files in os.walk(path):
                 for file in files:
                     if file.endswith(".py"):
                         file_path = os.path.join(root, file)
-                        process_file(file_path, dry_run, to_stdout)
+                        process_file(file_path, dry_run, False)
     else:
         print(f"Error: Path '{path}' is not a valid file or directory.")
         raise typer.Exit(code=1)
