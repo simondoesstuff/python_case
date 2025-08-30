@@ -1,3 +1,5 @@
+Not yet on pypi
+
 # Snake Shift
 
 [![Tests](https://img.shields.io/badge/tests-16%2F16%20passing-brightgreen)](https://github.com/simondoesstuff/snake_shift)
