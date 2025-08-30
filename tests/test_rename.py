@@ -3,7 +3,7 @@ import pytest
 import tempfile
 from pathlib import Path
 
-from rename_py.rename import (
+from snake_shift.rename import (
     refactor_source, to_pascal_case, to_snake_case,
     should_rename_file, get_new_file_path, collect_file_renames,
     refactor_directory

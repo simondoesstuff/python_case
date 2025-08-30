@@ -1,10 +1,10 @@
 # Snake Shift
 
-[![Tests](https://img.shields.io/badge/tests-16%2F16%20passing-brightgreen)](https://github.com/your-username/rename.py)
+[![Tests](https://img.shields.io/badge/tests-16%2F16%20passing-brightgreen)](https://github.com/simondoesstuff/snake_shift)
 [![Python](https://img.shields.io/badge/python-3.8%2B-blue)](https://python.org)
 [![License](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 
-A powerful Python refactoring tool that converts camelCase **codebases** to pythonic naming conventions while intelligently preserving external library calls.
+A powerful Python refactoring tool that converts camelCase _codebases_ to pythonic naming conventions while intelligently preserving external library calls.
 
 ## Features
 
@@ -19,16 +19,16 @@ A powerful Python refactoring tool that converts camelCase **codebases** to pyth
 
 ```bash
 # Install the tool
-pip install rename-py
+pip install snake-shift
 
 # Preview changes to a single file
-rename-py my_file.py --dry-run
+snake-shift my_file.py --dry-run
 
 # Refactor code and rename files in a directory
-rename-py src/ --rename-files
+snake-shift src/ --rename-files
 
 # Just refactor code without renaming files
-rename-py project/ --dry-run
+snake-shift project/ --dry-run
 ```
 
 ## Before & After
@@ -65,7 +65,7 @@ class MyClass:
 
 ### 1. Environment-Based Module Detection
 
-Unlike other tools that use hardcoded library lists, rename.py intelligently detects external modules by:
+Unlike other tools that use hardcoded library lists, snake-shift intelligently detects external modules by:
 
 - Checking if modules are installed in your Python environment
 - Identifying standard library modules
@@ -90,14 +90,13 @@ With `--rename-files`:
 ## Installation
 
 ```bash
-pip install rename-py
+pip install snake-shift
 ```
 
 Or install from source:
 
 ```bash
-git clone https://github.com/your-username/rename.py
-cd rename.py
+git clone https://github.com/simondoesstuff/snake_shift.git
 pip install -e .
 ```
 
@@ -106,7 +105,7 @@ pip install -e .
 ### Command Line Interface
 
 ```bash
-rename-py [OPTIONS] PATH
+snake-shift [OPTIONS] PATH
 ```
 
 **Options:**
@@ -121,22 +120,22 @@ rename-py [OPTIONS] PATH
 
 ```bash
 # Preview all changes to a project
-rename-py my_project/ --rename-files --dry-run
+snake-shift my_project/ --rename-files --dry-run
 
 # Refactor a single file
-rename-py utils.py
+snake-shift utils.py
 
 # Refactor directory with file renaming
-rename-py src/ --rename-files --verbose
+snake-shift src/ --rename-files --verbose
 
 # Output refactored code to stdout
-rename-py my_script.py --stdout
+snake-shift my_script.py --stdout
 ```
 
 ### Python API
 
 ```python
-from rename_py import refactor_source, refactor_directory
+from snake_shift import refactor_source, refactor_directory
 
 # Refactor source code string
 code = """
@@ -179,26 +178,25 @@ refactor_directory(
 The codebase is modularized for clarity and maintainability:
 
 ```
-src/rename_py/
+src/snake_shift/
     core.py              # Main refactoring logic
     naming.py            # Naming convention utilities
     module_detection.py  # External vs internal module detection
     transformer.py       # LibCST transformation logic
     file_operations.py   # File and directory operations
     cli.py              # Command line interface
-    rename.py           # Backward compatibility imports
 ```
 
 ## Requirements
 
-- Python 3.8+
+- Python 3.13+ (it can refactor other versions too)
 - libcst
 - typer (for CLI)
 - **Or, use UV**
 
 ## Contributing
 
-Contributions are welcome! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
+Contributions are welcome!
 
 ### Running Tests
 
@@ -208,9 +206,6 @@ pytest
 
 # Run specific test
 pytest tests/test_rename.py::test_external_library_preservation -v
-
-# Run with coverage
-pytest --cov=src/rename_py
 ```
 
 ## License
@@ -222,7 +217,3 @@ MIT License - see [LICENSE](LICENSE) for details.
 - Built with [LibCST](https://libcst.readthedocs.io/) for accurate Python code transformation
 - CLI powered by [Typer](https://typer.tiangolo.com/)
 - Inspired by the need for better Python refactoring tools that understand modern codebases
-
----
-
-**Made with d for the Python community**

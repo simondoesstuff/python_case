@@ -1,14 +1,10 @@
 [project]
-name = "rename-py"
-version = "0.1.0"
-description = "Add your description here"
+name = "snake-shift"
+version = "1.0.0"
+description = "smart codebase refactor camelCase to pythonic_case"
 readme = "README.md"
 requires-python = ">=3.13"
-dependencies = [
-    "libcst>=1.8.2",
-    "pytest>=8.4.1",
-    "typer>=0.16.1",
-]
+dependencies = ["libcst>=1.8.2", "pytest>=8.4.1", "typer>=0.16.1"]
 
 [project.scripts]
-rename-py = "rename_py.cli:app"
+snake-shift = "snake_shift.cli:app"

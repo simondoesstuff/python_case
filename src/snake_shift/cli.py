@@ -71,9 +71,9 @@ def main(
     while preserving external library calls and PascalCase imports.
     
     Examples:
-        rename-py my_file.py --dry-run
-        rename-py src/ --rename-files --verbose
-        rename-py project/ --rename-files
+        snake-shift my_file.py --dry-run
+        snake-shift src/ --rename-files --verbose
+        snake-shift project/ --rename-files
     """
     path_obj = Path(path)
     
