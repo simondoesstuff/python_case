@@ -1,7 +1,7 @@
 # Snake Shift
 
 [![Tests](https://img.shields.io/badge/tests-16%2F16%20passing-brightgreen)](https://github.com/simondoesstuff/snake_shift)
-[![Python](https://img.shields.io/badge/python-3.8%2B-blue)](https://python.org)
+[![Python](https://img.shields.io/badge/python-3.13%2B-blue)](https://python.org)
 [![License](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 
 A powerful Python refactoring tool that converts camelCase _codebases_ to pythonic naming conventions while intelligently preserving external library calls.
@@ -157,16 +157,16 @@ refactor_directory(
 
 ## What Gets Refactored
 
-###  Internal Code (Your Code)
+### Internal Code (Your Code)
 
-- Variable names: `myVar` ? `my_var`
-- Function names: `myFunction` ? `my_function`
-- Class names: `myClass` ? `MyClass`
-- Module imports: `from myPackage.myModule` ? `from my_package.my_module`
-- File names: `myModule.py` ? `my_module.py`
-- Directory names: `myPackage/` ? `my_package/`
+- Variable names: `myVar` $\to$ `my_var`
+- Function names: `myFunction` $\to$ `my_function`
+- Class names: `myClass` $\to$ `MyClass`
+- Module imports: `from myPackage.myModule` $\to$ `from my_package.my_module`
+- File names: `myModule.py` $\to$ `my_module.py`
+- Directory names: `myPackage/` $\to$ `my_package/`
 
-### L External Code (Preserved)
+### External Code (Preserved)
 
 - Library calls: `pd.DataFrame()` stays `pd.DataFrame()`
 - Standard library: `os.path.join()` stays `os.path.join()`
@@ -210,7 +210,7 @@ pytest tests/test_rename.py::test_external_library_preservation -v
 
 ## License
 
-MIT License - see [LICENSE](LICENSE) for details.
+MIT Licence
 
 ## Acknowledgments
 
