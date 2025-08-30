@@ -6,6 +6,13 @@ import libcst as cst
 from libcst import matchers as m
 
 
+def _is_pascalcase(name: str) -> bool:
+    """Check if a name follows PascalCase convention (likely a class/type)."""
+    if not name or len(name) < 2:
+        return False
+    return name[0].isupper() and not name.isupper() and '_' not in name
+
+
 def to_snake_case(name: str) -> str:
     """Converts a string to snake_case."""
     if not name:
@@ -210,6 +217,10 @@ class RenameTransformer(cst.CSTTransformer):
         if (name in self.external_modules or 
             name in self.class_names or 
             name in self.function_names):
+            return updated_node
+        
+        # Don't rename PascalCase names (likely classes/types)
+        if _is_pascalcase(name):
             return updated_node
             
         # Rename variables to snake_case
