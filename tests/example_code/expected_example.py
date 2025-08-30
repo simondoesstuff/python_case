@@ -9,13 +9,13 @@ import torch
 import torch.distributed as dist
 from torch import multiprocessing as mp
 from torch.utils.data import DataLoader
-from giggleml.dataWrangling import fasta
-from giggleml.dataWrangling.unifiedDataset import UnifiedDataset
-from ..dataWrangling.intervalDataset import IntervalDataset
-from ..utils.guessDevice import guessDevice
+from giggleml.data_wrangling import fasta
+from giggleml.data_wrangling.unified_dataset import UnifiedDataset
+from ..data_wrangling.interval_dataset import IntervalDataset
+from ..utils.guess_device import guessDevice
 from ..utils.types import GenomicInterval, ListLike
-from .blockDistributedSampler import BlockDistributedSampler
-from .embedModel import EmbedModel
+from .block_distributed_sampler import BlockDistributedSampler
+from .embed_model import EmbedModel
 
 @final
 class FastaCollate:
@@ -67,7 +67,7 @@ class BatchInfer:
                 rprint(f'== {str(elapsed_dt)}, ETA: {str(eta)}')
         rprint(f'Batch: {len(data_loader)}\t/ {len(data_loader)}')
         out_file.flush()
-        del outFile
+        del out_file
 
     def _worker(self, rank: int, datasets: Sequence[IntervalDataset], out_paths: Sequence[str], post: Sequence[Callable[[np.memmap], None]] | None):
         device = guessDevice(rank)
@@ -91,7 +91,7 @@ class BatchInfer:
                 raise ValueError('Unable to map to fasta; missing associatedFastaPath')
             collate = FastaCollate(fasta)
         else:
-            collate = passCollate
+            collate = pass_collate
         block_sampler = BlockDistributedSampler(master_dataset, self.worker_count, rank)
         sample_count = len(block_sampler)
         offset = block_sampler.lower * e_dim * 4
@@ -112,7 +112,7 @@ class BatchInfer:
             set_idx_start = master_dataset.listIdxOf(block_sampler.lower) if block_sampler.lower < len(master_dataset) else len(master_dataset.lists)
             set_idx_end = master_dataset.listIdxOf(block_sampler.upper) if block_sampler.upper < len(master_dataset) else len(master_dataset.lists)
             master_out_file.flush()
-            del masterOutFile
+            del master_out_file
             master_size = master_dataset.sums[set_idx_end] - master_dataset.sums[set_idx_start]
             master_out_file = np.memmap(master_out_path, np.float32, 'r', offset=master_dataset.sums[set_idx_start] * e_dim * 4, shape=(master_size, e_dim))
             for set_idx in range(set_idx_start, set_idx_end):
@@ -146,7 +146,7 @@ class BatchInfer:
         mm_total = np.memmap(master_out, np.float32, 'w+', shape=(total_len, e_dim))
         mm_total[:] = 0
         mm_total.flush()
-        del mmTotal
+        del mm_total
         args = (datasets, out_paths, post)
         mp.spawn(self._worker, args=args, nprocs=self.worker_count, join=True)
         os.remove(master_out)
