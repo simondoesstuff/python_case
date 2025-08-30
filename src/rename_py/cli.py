@@ -1,6 +1,7 @@
 import os
 import typer
-from .rename import refactor_source
+from pathlib import Path
+from .rename import refactor_source, refactor_directory
 import difflib
 
 app = typer.Typer()
@@ -56,21 +57,31 @@ def main(
     to_stdout: bool = typer.Option(
         False, "--stdout", help="Print the refactored code to stdout."
     ),
+    rename_files: bool = typer.Option(
+        False, "--rename-files", help="Also rename files and directories to pythonic conventions."
+    ),
 ):
     """
     Refactor a Python file or directory to Pythonic naming conventions.
     """
-    if os.path.isfile(path):
+    path_obj = Path(path)
+    
+    if path_obj.is_file():
         if path.endswith(".py"):
             process_file(path, dry_run, to_stdout)
         else:
             print(f"Skipping non-Python file: {path}")
-    elif os.path.isdir(path):
-        for root, _, files in os.walk(path):
-            for file in files:
-                if file.endswith(".py"):
-                    file_path = os.path.join(root, file)
-                    process_file(file_path, dry_run, to_stdout)
+    elif path_obj.is_dir():
+        if rename_files:
+            # Use the new directory refactoring function
+            refactor_directory(path_obj, rename_files=True, dry_run=dry_run)
+        else:
+            # Use the original file-by-file approach
+            for root, _, files in os.walk(path):
+                for file in files:
+                    if file.endswith(".py"):
+                        file_path = os.path.join(root, file)
+                        process_file(file_path, dry_run, to_stdout)
     else:
         print(f"Error: Path '{path}' is not a valid file or directory.")
         raise typer.Exit(code=1)

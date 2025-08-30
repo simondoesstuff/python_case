@@ -1,7 +1,13 @@
 
 import pytest
+import tempfile
+from pathlib import Path
 
-from rename_py.rename import refactor_source, to_pascal_case, to_snake_case
+from rename_py.rename import (
+    refactor_source, to_pascal_case, to_snake_case,
+    should_rename_file, get_new_file_path, collect_file_renames,
+    refactor_directory
+)
 
 
 def test_to_snake_case():
@@ -215,4 +221,159 @@ def process():
 
     # Internal function calls should be renamed
     assert "my_function()" in refactored
+
+
+def test_should_rename_file():
+    """Test file renaming detection logic."""
+    # Should rename camelCase files
+    assert should_rename_file(Path("myModule.py"))
+    assert should_rename_file(Path("dataHandler.py"))
+    assert should_rename_file(Path("myDirectory"))
+    
+    # Should NOT rename PascalCase files (likely class modules)
+    assert not should_rename_file(Path("MyClass.py"))
+    assert not should_rename_file(Path("DataProcessor.py"))
+    
+    # Should NOT rename already snake_case files
+    assert not should_rename_file(Path("my_module.py"))
+    assert not should_rename_file(Path("data_handler.py"))
+    assert not should_rename_file(Path("my_directory"))
+    
+    # Should NOT rename special files
+    assert not should_rename_file(Path("__init__.py"))
+    assert not should_rename_file(Path(".gitignore"))
+    assert not should_rename_file(Path("setup.py"))
+    assert not should_rename_file(Path("README.md"))
+    assert not should_rename_file(Path("pyproject.toml"))
+
+
+def test_get_new_file_path():
+    """Test file path generation for renames."""
+    # Python files
+    assert get_new_file_path(Path("myModule.py")) == Path("my_module.py")
+    assert get_new_file_path(Path("dataHandler.py")) == Path("data_handler.py")
+    
+    # PascalCase files should be preserved  
+    assert get_new_file_path(Path("MyClass.py")) == Path("MyClass.py")
+    assert get_new_file_path(Path("DataProcessor.py")) == Path("DataProcessor.py")
+    
+    # Directories
+    assert get_new_file_path(Path("myDirectory")) == Path("my_directory")
+    assert get_new_file_path(Path("dataUtils")) == Path("data_utils")
+
+
+@pytest.fixture
+def temp_project():
+    """Create a temporary project structure for testing."""
+    with tempfile.TemporaryDirectory() as temp_dir:
+        project_root = Path(temp_dir)
+        
+        # Create directory structure
+        (project_root / "myPackage").mkdir()
+        (project_root / "myPackage" / "subModule").mkdir()
+        (project_root / "myPackage" / "MyClassModule").mkdir()
+        
+        # Create Python files
+        files = {
+            "myPackage/__init__.py": "from .myModule import MyClass\n",
+            "myPackage/myModule.py": "class MyClass:\n    pass\n",
+            "myPackage/dataHandler.py": "def processData():\n    pass\n",
+            "myPackage/MyClassModule/__init__.py": "",
+            "myPackage/MyClassModule/MyClass.py": "class MyClass:\n    pass\n",
+            "myPackage/subModule/__init__.py": "",
+            "myPackage/subModule/utilsFile.py": "def helperFunction():\n    pass\n",
+        }
+        
+        for file_path, content in files.items():
+            full_path = project_root / file_path
+            full_path.parent.mkdir(parents=True, exist_ok=True)
+            full_path.write_text(content)
+        
+        yield project_root
+
+
+def test_collect_file_renames(temp_project):
+    """Test collecting file renames from a project structure."""
+    renames = collect_file_renames(temp_project)
+    
+    # Convert to relative paths for easier testing
+    relative_renames = [
+        (old.relative_to(temp_project), new.relative_to(temp_project))
+        for old, new in renames
+    ]
+    
+    expected_renames = {
+        (Path("myPackage"), Path("my_package")),
+        (Path("myPackage/myModule.py"), Path("myPackage/my_module.py")),
+        (Path("myPackage/dataHandler.py"), Path("myPackage/data_handler.py")),
+        (Path("myPackage/subModule"), Path("myPackage/sub_module")),
+        (Path("myPackage/subModule/utilsFile.py"), Path("myPackage/subModule/utils_file.py")),
+    }
+    
+    # MyClassModule and MyClass.py should NOT be renamed (PascalCase)
+    not_renamed = {
+        Path("myPackage/MyClassModule"),
+        Path("myPackage/MyClassModule/MyClass.py"),
+    }
+    
+    for old, new in relative_renames:
+        assert (old, new) in expected_renames, f"Unexpected rename: {old} -> {new}"
+    
+    for path in not_renamed:
+        assert not any(old == path for old, new in relative_renames), f"Should not rename PascalCase: {path}"
+
+
+def test_refactor_directory_dry_run(temp_project, capsys):
+    """Test directory refactoring in dry-run mode."""
+    refactor_directory(temp_project, rename_files=True, dry_run=True)
+    
+    captured = capsys.readouterr()
+    output = captured.out
+    
+    # Should show file renames
+    assert "Would rename:" in output
+    assert "my_package" in output
+    assert "my_module.py" in output
+    
+    # Should show file refactoring
+    assert "Would refactor:" in output
+    
+    # Original files should still exist
+    assert (temp_project / "myPackage" / "myModule.py").exists()
+    assert (temp_project / "myPackage" / "dataHandler.py").exists()
+
+
+def test_file_renaming_preserves_pascalcase():
+    """Test that PascalCase files/dirs are preserved during renaming."""
+    # Files that should NOT be renamed
+    test_cases = [
+        "MyClass.py",
+        "DataProcessor.py", 
+        "MyModule",
+        "ConfigManager.py"
+    ]
+    
+    for case in test_cases:
+        path = Path(case)
+        assert not should_rename_file(path), f"{case} should not be renamed (PascalCase)"
+        assert get_new_file_path(path) == path, f"{case} should keep same path"
+
+
+def test_file_renaming_converts_camelcase():
+    """Test that camelCase files/dirs are converted to snake_case."""
+    test_cases = [
+        ("myModule.py", "my_module.py"),
+        ("dataHandler.py", "data_handler.py"),
+        ("utilsFile.py", "utils_file.py"),
+        ("myDirectory", "my_directory"),
+        ("dataUtils", "data_utils"),
+        ("configHelper", "config_helper"),
+    ]
+    
+    for original, expected in test_cases:
+        original_path = Path(original)
+        expected_path = Path(expected)
+        
+        assert should_rename_file(original_path), f"{original} should be renamed"
+        assert get_new_file_path(original_path) == expected_path, f"{original} -> {expected}"
 
