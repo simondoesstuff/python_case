@@ -13,11 +13,11 @@ from snake_shift.file_operations import (
 def test_to_snake_case():
     assert to_snake_case("HelloWorld") == "hello_world"
     assert to_snake_case("helloWorld") == "hello_world"
-    assert to_snake_case("Hello_World") == "hello__world"
+    assert to_snake_case("Hello_World") == "hello_world"
     assert to_snake_case("") == ""
     assert to_snake_case("__init__") == "__init__"  # Dunder methods unchanged
     assert to_snake_case("_privateVar") == "_private_var"
-    assert to_snake_case("XML_HTTP_Request") == "xml__http__request"
+    assert to_snake_case("XML_HTTP_Request") == "xml_http_request"
 
 
 def test_to_pascal_case():
@@ -31,8 +31,8 @@ def test_to_pascal_case():
     assert to_pascal_case("_private_class") == "_PrivateClass"
     assert to_pascal_case("_WeirdCamelCase") == "_WeirdCamelCase"  
     assert to_pascal_case("__dunder_class__") == "__DunderClass__"
-    assert to_pascal_case("_XMLParser") == "_Xmlparser"
-    assert to_pascal_case("__HTTPClient__") == "__Httpclient__"
+    assert to_pascal_case("_XMLParser") == "_XMLParser"
+    assert to_pascal_case("__HTTPClient__") == "__HTTPClient__"
 
 
 def test_is_underscore_prefixed_pascalcase():

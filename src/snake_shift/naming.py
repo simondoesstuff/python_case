@@ -5,6 +5,34 @@ Naming convention utilities for Python refactoring.
 import re
 
 
+def _snake_to_pascal_preserving_acronyms(original_name: str) -> str:
+    """Convert directly from original name to PascalCase preserving adjacent capitals."""
+    if not original_name:
+        return ""
+    
+    # Split the original name while preserving adjacent capitals
+    # First, split lowercase/digits from uppercase: parseXMLData -> parse_XMLData  
+    s1 = re.sub(r"([a-z0-9])([A-Z])", r"\1_\2", original_name)
+    # Then split consecutive uppercase letters from following lowercase: XMLParser -> XML_Parser
+    s2 = re.sub(r"([A-Z]+)([A-Z][a-z])", r"\1_\2", s1)
+    
+    # Now we have segments like ['XML', 'Parser'] or ['Hyena', 'DNA']
+    # Convert each segment appropriately
+    parts = s2.split('_')
+    pascal_parts = []
+    
+    for part in parts:
+        if part:
+            if part.isupper() and len(part) > 1:
+                # This is an acronym, keep it uppercase
+                pascal_parts.append(part)
+            else:
+                # Regular word, capitalize it
+                pascal_parts.append(part.capitalize())
+    
+    return ''.join(pascal_parts)
+
+
 def _is_pascalcase(name: str) -> bool:
     """Check if a name follows PascalCase convention (likely a class/type)."""
     if not name or len(name) < 2:
@@ -39,10 +67,11 @@ def to_snake_case(name: str) -> str:
     leading_underscores = len(name) - len(name.lstrip('_'))
     
     name = name.lstrip('_')
-    # Add an underscore before any uppercase letter, except at the start
-    s1 = re.sub(r"([A-Z]+)", r"_\1", name)
-    # Handle cases where there's an uppercase letter after a lowercase letter or number
-    s2 = re.sub(r"([a-z0-9])([A-Z])", r"\1_\2", s1)
+    # Handle consecutive uppercase letters as single units, but split them from lowercase letters
+    # First, split lowercase/digits from uppercase: parseXMLData -> parse_XMLData
+    s1 = re.sub(r"([a-z0-9])([A-Z])", r"\1_\2", name)
+    # Then split consecutive uppercase letters from following lowercase: XMLParser -> XML_Parser
+    s2 = re.sub(r"([A-Z]+)([A-Z][a-z])", r"\1_\2", s1)
     
     return "_" * leading_underscores + s2.lower().lstrip('_')
 
@@ -65,12 +94,10 @@ def to_pascal_case(name: str) -> str:
             return name  # All underscores, return as-is
         
         # Convert core name to PascalCase
-        snake_case_core = to_snake_case(core_name)
-        pascal_case_core = ''.join(word.capitalize() for word in snake_case_core.split('_'))
+        pascal_case_core = _snake_to_pascal_preserving_acronyms(core_name)
         
         # Reconstruct with original underscore pattern
         return '_' * leading_underscores + pascal_case_core + '_' * trailing_underscores
     
     # Standard case - no underscore prefixes/suffixes
-    snake_case_name = to_snake_case(name)
-    return ''.join(word.capitalize() for word in snake_case_name.split('_'))
+    return _snake_to_pascal_preserving_acronyms(name)

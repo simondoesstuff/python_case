@@ -12,7 +12,7 @@ def test_complex_underscore_patterns():
         ("___TripleUnderscore", "___TripleUnderscore", "triple underscore preserved as-is"),
         ("_A", "_a", "single char after underscore becomes snake_case"),
         ("__A__", "__A__", "single char in dunder pattern preserved"),  
-        ("_A_B", "_a__b", "mixed case gets partial conversion"),
+        ("_A_B", "_a_b", "mixed case gets partial conversion"),
         ("__A_B__", "__A_B__", "mixed case in dunder pattern preserved"),
         ("_123Class", "_123_class", "number prefix with PascalCase becomes snake_case"),
         ("__123Class__", "__123Class__", "number prefix in dunders preserved"),
@@ -54,7 +54,7 @@ deep = outer._InnerClass.__DeepInnerClass__()
     assert "class _OuterClass:" in result
     assert "class _InnerClass:" in result
     assert "class __DeepInnerClass__:" in result
-    assert "self._xmlhelper = _Xmlparser()" in result  # self attributes get renamed
+    assert "self._xml_helper = _XMLParser()" in result  # self attributes get renamed
     assert "self.__meta_helper__ = __MetaHelper__()" in result
     assert "outer = _OuterClass()" in result
 
@@ -82,10 +82,10 @@ meta_gen = (__MetaClass__() for __MetaClass__ in meta_objects if __MetaClass__)
     result = refactor_source(test_code)
     
     # Check key transformations in comprehensions and lambdas
-    assert "_Xmltype() if _Xmltype else None" in result  # Parameters get renamed
-    assert "_Xmlparser() for _Xmlparser in" in result  # Class names normalized
+    assert "_XMLType() if _XMLType else None" in result  # Parameters get renamed
+    assert "_XMLParser() for _XMLParser in" in result  # Class names normalized
     assert "__MetaClass__() for __MetaClass__ in" in result  # Dunder names preserved
-    assert "_name: _Xmlparser()" in result
+    assert "_name: _XMLParser()" in result
 
 
 def test_exception_handling_with_underscores():
@@ -116,10 +116,10 @@ finally:
     
     assert "class _CustomException(Exception):" in result
     assert "class __SystemException__(Exception):" in result
-    assert "parser = _Xmlparser()" in result
+    assert "parser = _XMLParser()" in result
     assert "except _CustomException as _e:" in result
     assert "raise __SystemException__" in result
-    assert "cleanup_parser = _Xmlparser()" in result
+    assert "cleanup_parser = _XMLParser()" in result
 
 
 def test_context_managers_with_underscores():
@@ -153,7 +153,7 @@ with __MetaContextManager__() as __meta__:
     
     assert "class _ResourceManager:" in result
     assert "class __MetaContextManager__:" in result
-    assert "self._resource = _Xmlparser()" in result
+    assert "self._resource = _XMLParser()" in result
     assert "return __MetaHelper__()" in result
     assert "with _ResourceManager() as _parser:" in result
     assert "with __MetaContextManager__() as __meta__:" in result
@@ -189,8 +189,8 @@ async def main():
     
     assert "class _AsyncProcessor:" in result
     assert "class __AsyncMetaProcessor__:" in result
-    assert "_helper = _Xmlparser()" in result
-    assert "self.__parser__ = _Xmlparser()" in result
+    assert "_helper = _XMLParser()" in result
+    assert "self.__parser__ = _XMLParser()" in result
     assert "_processor = _AsyncProcessor()" in result
     assert "async with __AsyncMetaProcessor__() as __parser__:" in result
 
@@ -233,9 +233,9 @@ parser = descriptor_class._xml_descriptor
     assert "class _PropertyHolder:" in result
     assert "class __MetaDescriptor__:" in result
     assert "class _ClassWithDescriptor:" in result
-    assert "self.__xml_parser = _Xmlparser()" in result
-    assert "return _Xmlparser()" in result
-    assert "holder._xml_parser_prop = _Xmlparser()" in result
+    assert "self.__xml_parser = _XMLParser()" in result
+    assert "return _XMLParser()" in result
+    assert "holder._xml_parser_prop = _XMLParser()" in result
 
 
 def test_metaclass_patterns():
@@ -261,12 +261,12 @@ parser = concrete.get_parser()
 
     result = refactor_source(test_code)
     
-    assert "class __XmlparserMeta__(type):" in result
-    assert "_attrs['_default_parser'] = _Xmlparser" in result
-    assert "class _BaseXmlclass(metaclass=__XmlparserMeta__):" in result
-    assert "class _ConcreteXmlclass(_BaseXmlclass):" in result
-    assert "self._parser_instance = _Xmlparser()" in result
-    assert "concrete = _ConcreteXmlclass()" in result
+    assert "class __XMLParserMeta__(type):" in result
+    assert "_attrs['_default_parser'] = _XMLParser" in result
+    assert "class _BaseXMLClass(metaclass=__XMLParserMeta__):" in result
+    assert "class _ConcreteXMLClass(_BaseXMLClass):" in result
+    assert "self._parser_instance = _XMLParser()" in result
+    assert "concrete = _ConcreteXMLClass()" in result
 
 
 def test_naming_function_edge_cases():
@@ -305,10 +305,10 @@ def test_to_pascal_case_underscore_edge_cases():
         ("__a__", "__A__", "single char in dunders"),
         ("_hello_world", "_HelloWorld", "snake_case to PascalCase"),
         ("__hello_world__", "__HelloWorld__", "snake_case in dunders"),
-        ("_XMLParser", "_Xmlparser", "acronym normalization"),
-        ("__XMLParser__", "__Xmlparser__", "acronym in dunders"),
-        ("_HTML_Parser", "_HtmlParser", "mixed acronym"),
-        ("__HTML_Parser__", "__HtmlParser__", "mixed acronym in dunders"),
+        ("_XMLParser", "_XMLParser", "acronym preservation"),
+        ("__XMLParser__", "__XMLParser__", "acronym in dunders"),
+        ("_HTML_Parser", "_HTMLParser", "mixed acronym"),
+        ("__HTML_Parser__", "__HTMLParser__", "mixed acronym in dunders"),
         ("____test____", "____Test____", "many underscores"),
         ("_test_", "_Test_", "trailing underscore"),
         ("__test_", "__Test_", "mixed underscore pattern"),

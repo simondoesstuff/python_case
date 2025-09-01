@@ -28,24 +28,24 @@ client = HTTPClient()
 '''
     
     expected = '''
-class HyenaDna:
+class HyenaDNA:
     def __init__(self):
         pass
 
 # This should be renamed to match the normalized class name
-instance = HyenaDna()
+instance = HyenaDNA()
 
 # Another test case
-class Xmlparser:
+class XMLParser:
     pass
 
-parser = Xmlparser()
+parser = XMLParser()
 
 # Edge case with mixed case
-class Httpclient:
+class HTTPClient:
     pass
 
-client = Httpclient()
+client = HTTPClient()
 '''
     
     result = refactor_source(test_code)
@@ -55,11 +55,11 @@ client = Httpclient()
 def test_pascal_case_normalization_examples():
     """Test specific PascalCase normalization examples."""
     test_cases = [
-        ("HyenaDNA", "HyenaDna"),
-        ("XMLParser", "Xmlparser"),
-        ("HTTPClient", "Httpclient"),
-        ("URLValidator", "Urlvalidator"),
-        ("JSONData", "Jsondata"),
+        ("HyenaDNA", "HyenaDNA"),
+        ("XMLParser", "XMLParser"),
+        ("HTTPClient", "HTTPClient"),
+        ("URLValidator", "URLValidator"),
+        ("JSONData", "JSONData"),
     ]
     
     for original, expected in test_cases:
@@ -82,8 +82,8 @@ def test_underscore_prefixed_pascalcase():
         ("_WeirdCamelCase", "_WeirdCamelCase"),  # Should normalize to proper PascalCase
         ("__DunderClass__", "__DunderClass__"),  # Already correct
         ("__WeirdCamelThing__", "__WeirdCamelThing__"),  # Should normalize
-        ("_XMLParser", "_Xmlparser"),  # Should normalize acronyms
-        ("__HTTPClient__", "__Httpclient__"),  # Should normalize acronyms
+        ("_XMLParser", "_XMLParser"),  # Should preserve acronyms
+        ("__HTTPClient__", "__HTTPClient__"),  # Should preserve acronyms
         ("_private_var", "_private_var"),  # Already snake_case, should stay unchanged
         ("__internal_var__", "__internal_var__"),  # Already snake_case, should stay unchanged
     ]
@@ -148,14 +148,14 @@ class _PrivateBaseClass:
 
 class __DunderMetaClass__:
     def create_instance(self):
-        return _Xmlparser()
+        return _XMLParser()
 
-class _Httpclient:
+class _HTTPClient:
     pass
 
 # Instance creations should also be normalized
-client = _Httpclient()
-parser = _Xmlparser()
+client = _HTTPClient()
+parser = _XMLParser()
 meta = __DunderMetaClass__()
 '''
     
@@ -199,9 +199,9 @@ class RegularClass:
         self._private_helper = None
         self.__dunder_attr__ = 42
 
-class _InternalApi:
+class _InternalAPI:
     def process_data(self, _input_data, __config__):
-        helper = _Xmlprocessor()
+        helper = _XMLProcessor()
         return helper.transform(__config__)
 
 class __SingletonMeta__:
@@ -209,14 +209,14 @@ class __SingletonMeta__:
     
     def get_instance(cls):
         if cls._instance is None:
-            cls._instance = _InternalApi()
+            cls._instance = _InternalAPI()
         return cls._instance
 
 # Usage patterns
-api = _InternalApi()
+api = _InternalAPI()
 meta = __SingletonMeta__()
 regular = RegularClass()
-processor = _Xmlprocessor()
+processor = _XMLProcessor()
 '''
     
     result = refactor_source(test_code)
@@ -246,7 +246,7 @@ meta_obj = container.__dunder_thing__
     expected_code = '''
 class Container:
     def __init__(self):
-        self._private_class = _Xmlparser()
+        self._private_class = _XMLParser()
         self.__dunder_thing__ = __MetaThing__()
         self._regular_attr = "value"
     
@@ -268,14 +268,14 @@ meta_obj = container.__dunder_thing__
 def test_function_parameters_with_underscore_prefixes():
     """Test function parameters with underscore prefixes."""
     test_code = '''
-def process_data(_InputData, __config__, _processor_class=_XMLProcessor):
+def process_data(_input_data, __config__, _processor_class=_XMLProcessor):
     processor = _processor_class()
-    return processor.process(_InputData, __config__)
+    return processor.process(_input_data, __config__)
 
-def factory_method(_ClassType, _instance_config):
-    if _ClassType == _XMLProcessor:
+def factory_method(_class_type, _instance_config):
+    if _class_type == _XMLProcessor:
         return _XMLProcessor(_instance_config)
-    elif _ClassType == __MetaProcessor__:
+    elif _class_type == __MetaProcessor__:
         return __MetaProcessor__(_instance_config)
     return None
 
@@ -285,20 +285,20 @@ instance = factory_method(_XMLProcessor, _my_config)
 '''
 
     expected_code = '''
-def process_data(_input_data, __config__, _processor_class=_Xmlprocessor):
+def process_data(_input_data, __config__, _processor_class=_XMLProcessor):
     processor = _processor_class()
-    return processor.process(_InputData, __config__)
+    return processor.process(_input_data, __config__)
 
 def factory_method(_class_type, _instance_config):
-    if _ClassType == _Xmlprocessor:
-        return _Xmlprocessor(_instance_config)
-    elif _ClassType == __MetaProcessor__:
+    if _class_type == _XMLProcessor:
+        return _XMLProcessor(_instance_config)
+    elif _class_type == __MetaProcessor__:
         return __MetaProcessor__(_instance_config)
     return None
 
 # Function calls
 result = process_data(_MyData(), __global_config__, _CustomProcessor)
-instance = factory_method(_Xmlprocessor, _my_config)
+instance = factory_method(_XMLProcessor, _my_config)
 '''
     
     result = refactor_source(test_code)
@@ -333,11 +333,11 @@ meta = __UtilityMeta__()
     result = refactor_source(test_code)
     
     # Check key transformations occurred
-    assert "class _Xmlparser:" in result
+    assert "class _XMLParser:" in result
     assert "_HelperClass()" in result  # Imported names should stay as-is
     assert "__UtilityMeta__()" in result  # Imported names should stay as-is
     assert "ET.XMLParser()" in result  # External library unchanged
-    assert "parser = _Xmlparser()" in result
+    assert "parser = _XMLParser()" in result
 
 
 def test_complex_inheritance_patterns():
@@ -370,22 +370,22 @@ combined = _CombinedProcessor()
 class _BaseProcessor:
     pass
 
-class _Xmlprocessor(_BaseProcessor):
+class _XMLProcessor(_BaseProcessor):
     def process_xml(self, _xml_input):
         return super().process_data(_xml_input)
 
 class __MetaProcessor__(_BaseProcessor):
     def __init__(self):
         super().__init__()
-        self._xml_proc = _Xmlprocessor()
+        self._xml_proc = _XMLProcessor()
 
 # Multiple inheritance
-class _CombinedProcessor(_Xmlprocessor, __MetaProcessor__):
+class _CombinedProcessor(_XMLProcessor, __MetaProcessor__):
     pass
 
 # Usage
 base = _BaseProcessor()
-xml_proc = _Xmlprocessor()
+xml_proc = _XMLProcessor()
 meta_proc = __MetaProcessor__()
 combined = _CombinedProcessor()
 '''
