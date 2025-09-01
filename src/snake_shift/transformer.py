@@ -72,8 +72,13 @@ class RenameTransformer(cst.CSTTransformer):
             name in self.function_names):
             return updated_node
         
-        # Don't rename PascalCase names (likely classes/types)
-        if _is_pascalcase(name):
+        # Handle PascalCase names - assume they're class calls and normalize them
+        if name and name[0].isupper():
+            new_name = to_pascal_case(name)
+            if name != new_name:
+                # Store the rename in current scope for future references
+                self.renamed_vars[-1][name] = new_name
+                return updated_node.with_changes(value=new_name)
             return updated_node
             
         # Rename variables to snake_case
