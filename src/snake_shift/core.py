@@ -127,6 +127,9 @@ def refactor_directory(
             else:
                 console.print("[dim]No files need renaming[/dim]")
 
+        # Add blank line for better separation
+        console.print()
+        
         # Then refactor Python file contents
         console.print("[bold blue]Collecting Python files...[/bold blue]")
         python_files = []
