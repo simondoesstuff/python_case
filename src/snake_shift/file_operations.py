@@ -6,7 +6,9 @@ import fnmatch
 import os
 import shutil
 from pathlib import Path
-from typing import List, Set, Tuple
+from typing import Callable, List, Optional, Set, Tuple
+
+from rich.console import Console
 
 from .naming import _is_pascalcase, to_snake_case
 
@@ -224,12 +226,21 @@ def collect_file_renames(
 
 
 def execute_file_renames(
-    renames: List[Tuple[Path, Path]], dry_run: bool = True
+    renames: List[Tuple[Path, Path]], 
+    dry_run: bool = True,
+    verbose: bool = False,
+    console: Optional[Console] = None,
+    progress_callback: Optional[Callable[[], None]] = None
 ) -> None:
     """Execute the file/directory renames."""
+    if console is None:
+        console = Console()
+    
     for old_path, new_path in renames:
         if dry_run:
-            print(f"Would rename: {old_path} → {new_path}")
+            console.print(
+                f"[yellow]Would rename:[/yellow] {old_path} → {new_path}"
+            )
         else:
             try:
                 if old_path.is_dir():
@@ -238,6 +249,12 @@ def execute_file_renames(
                 else:
                     # Use Path.rename for files (more efficient)
                     old_path.rename(new_path)
-                print(f"Renamed: {old_path} → {new_path}")
+                if verbose:
+                    console.print(
+                        f"[green]Renamed:[/green] {old_path} → {new_path}"
+                    )
             except Exception as e:
-                print(f"Error renaming {old_path}: {e}")
+                console.print(f"[red]Error renaming {old_path}:[/red] {e}")
+        
+        if progress_callback:
+            progress_callback()

@@ -13,6 +13,7 @@ from .file_operations import (
     _is_ignored,
     _load_gitignore_patterns,
     collect_file_renames,
+    execute_file_renames,
 )
 from .module_detection import ImportAnalyzer
 from .transformer import RenameTransformer
@@ -105,25 +106,17 @@ def refactor_directory(
                 rename_task = progress.add_task(
                     "[cyan]Renaming files...", total=len(renames)
                 )
-                for old_path, new_path in renames:
-                    if dry_run:
-                        console.print(
-                            f"[yellow]Would rename:[/yellow] {old_path} → {new_path}"
-                        )
-                    else:
-                        try:
-                            if old_path.is_dir():
-                                shutil.move(str(old_path), str(new_path))
-                            else:
-                                old_path.rename(new_path)
-                            if verbose:
-                                console.print(
-                                    f"[green]Renamed:[/green] {old_path} → {new_path}"
-                                )
-                        except Exception as e:
-                            console.print(f"[red]Error renaming {old_path}:[/red] {e}")
-
+                
+                def update_progress():
                     progress.update(rename_task, advance=1)
+                
+                execute_file_renames(
+                    renames, 
+                    dry_run=dry_run,
+                    verbose=verbose,
+                    console=console,
+                    progress_callback=update_progress
+                )
 
                 # Update root_path if it was renamed
                 if not dry_run:
