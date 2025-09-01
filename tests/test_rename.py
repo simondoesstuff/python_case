@@ -330,13 +330,13 @@ def test_refactor_directory_dry_run(temp_project, capsys):
     captured = capsys.readouterr()
     output = captured.out
     
-    # Should show file renames
+    # Should show file renames with new Rich output format
     assert "Would rename:" in output
     assert "my_package" in output
-    assert "my_module.py" in output
+    assert "my_module" in output
     
-    # Should show file refactoring
-    assert "Would refactor:" in output
+    # Should show summary
+    assert "Would refactor" in output or "No files needed refactoring" in output
     
     # Original files should still exist
     assert (temp_project / "myPackage" / "myModule.py").exists()

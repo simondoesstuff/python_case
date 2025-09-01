@@ -3,9 +3,76 @@ File and directory operations for Python refactoring.
 """
 
 import os
+import fnmatch
 from pathlib import Path
-from typing import List, Tuple
+from typing import List, Tuple, Set
 from .naming import to_snake_case, _is_pascalcase
+
+
+def _load_gitignore_patterns(root_path: Path) -> Set[str]:
+    """Load gitignore patterns from .gitignore file."""
+    patterns = set()
+    gitignore_path = root_path / '.gitignore'
+    
+    if gitignore_path.exists():
+        try:
+            with open(gitignore_path, 'r', encoding='utf-8') as f:
+                for line in f:
+                    line = line.strip()
+                    if line and not line.startswith('#'):
+                        patterns.add(line)
+        except Exception:
+            # If we can't read .gitignore, continue without it
+            pass
+    
+    # Add common ignore patterns
+    default_patterns = {
+        '__pycache__',
+        '*.pyc',
+        '*.pyo',
+        '*.pyd',
+        '.git',
+        '.venv',
+        'venv',
+        '.env',
+        'node_modules',
+        '.DS_Store',
+        '*.egg-info',
+        'build',
+        'dist',
+    }
+    patterns.update(default_patterns)
+    
+    return patterns
+
+
+def _is_ignored(file_path: Path, root_path: Path, ignore_patterns: Set[str]) -> bool:
+    """Check if a file should be ignored based on gitignore patterns."""
+    try:
+        relative_path = file_path.relative_to(root_path)
+        path_str = str(relative_path)
+        
+        for pattern in ignore_patterns:
+            # Remove trailing slash from pattern for directory matching
+            clean_pattern = pattern.rstrip('/')
+            
+            # Check full path match
+            if fnmatch.fnmatch(path_str, pattern) or fnmatch.fnmatch(path_str, clean_pattern):
+                return True
+            
+            # Check filename match
+            if fnmatch.fnmatch(file_path.name, pattern) or fnmatch.fnmatch(file_path.name, clean_pattern):
+                return True
+            
+            # Check directory components
+            for part in relative_path.parts:
+                if fnmatch.fnmatch(part, pattern) or fnmatch.fnmatch(part, clean_pattern):
+                    return True
+        
+        return False
+    except ValueError:
+        # file_path is not relative to root_path
+        return False
 
 
 def should_rename_file(file_path: Path) -> bool:
@@ -64,14 +131,24 @@ def collect_file_renames(root_path: Path, dry_run: bool = True) -> List[Tuple[Pa
     Returns list of (old_path, new_path) tuples.
     """
     renames = []
+    ignore_patterns = _load_gitignore_patterns(root_path)
     
     # Walk directory tree bottom-up to handle nested renames properly
     for dirpath, dirnames, filenames in os.walk(root_path, topdown=False):
         current_dir = Path(dirpath)
         
+        # Skip if current directory is ignored
+        if _is_ignored(current_dir, root_path, ignore_patterns):
+            continue
+        
         # Check files first
         for filename in filenames:
             file_path = current_dir / filename
+            
+            # Skip ignored files
+            if _is_ignored(file_path, root_path, ignore_patterns):
+                continue
+                
             if should_rename_file(file_path):
                 new_path = get_new_file_path(file_path)
                 if file_path != new_path:
@@ -80,6 +157,11 @@ def collect_file_renames(root_path: Path, dry_run: bool = True) -> List[Tuple[Pa
         # Check directories
         for dirname in dirnames:
             dir_path = current_dir / dirname
+            
+            # Skip ignored directories
+            if _is_ignored(dir_path, root_path, ignore_patterns):
+                continue
+                
             if should_rename_file(dir_path):
                 new_path = get_new_file_path(dir_path)
                 if dir_path != new_path:

@@ -2,7 +2,7 @@ Not yet on pypi
 
 # Snake Shift
 
-[![Tests](https://img.shields.io/badge/tests-16%2F16%20passing-brightgreen)](https://github.com/simondoesstuff/snake_shift)
+[![Tests](https://img.shields.io/badge/tests-64%2F64%20passing-brightgreen)](https://github.com/simondoesstuff/snake_shift)
 [![Python](https://img.shields.io/badge/python-3.13%2B-blue)](https://python.org)
 [![License](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 
@@ -13,6 +13,7 @@ A powerful Python refactoring tool that converts camelCase _codebases_ to python
 - **Smart Environment Detection** - Automatically distinguishes between internal and external modules
 - **Aggressive Refactoring** - Converts entire codebases while preserving external library APIs
 - **File & Directory Renaming** - Renames files and directories to match pythonic conventions
+- **Gitignore Integration** - Respects .gitignore patterns and includes sensible defaults
 - **PascalCase Preservation** - Keeps class names and type imports in PascalCase
 - **LibCST-Powered** - Uses concrete syntax trees for accurate code transformation
 - **Dry Run Support** - Preview changes before applying them
@@ -194,6 +195,7 @@ src/snake_shift/
 - Python 3.13+ (it can refactor other versions too)
 - libcst
 - typer (for CLI)
+- rich (for progress bars and colored output)
 - **Or, use UV**
 
 ## Contributing
@@ -203,11 +205,14 @@ Contributions are welcome!
 ### Running Tests
 
 ```bash
-# Run all tests
-pytest
+# Run all tests (using uv)
+uv run pytest
 
 # Run specific test
-pytest tests/test_rename.py::test_external_library_preservation -v
+uv run pytest tests/test_rename.py::test_external_library_preservation -v
+
+# Run with coverage
+uv run pytest --cov=snake_shift
 ```
 
 ## License

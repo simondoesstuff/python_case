@@ -4,11 +4,11 @@ Module detection utilities for distinguishing external vs internal modules.
 
 import sys
 import importlib.util
-from typing import Set, Dict
+from typing import Set, Dict, Union, Optional
 import libcst as cst
 
 
-def _get_module_name_from_node(node) -> str:
+def _get_module_name_from_node(node: Union[cst.Name, cst.Attribute, cst.CSTNode]) -> str:
     """Extract module name string from CST node."""
     if isinstance(node, cst.Name):
         return node.value
