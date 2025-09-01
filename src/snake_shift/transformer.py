@@ -4,7 +4,7 @@ LibCST transformer for renaming Python code to Pythonic conventions.
 
 from typing import Set, Dict, List, Optional
 import libcst as cst
-from .naming import to_snake_case, to_pascal_case, _is_pascalcase
+from .naming import to_snake_case, to_pascal_case, _is_pascalcase, _is_underscore_prefixed_pascalcase
 
 
 class RenameTransformer(cst.CSTTransformer):
@@ -72,7 +72,16 @@ class RenameTransformer(cst.CSTTransformer):
             name in self.function_names):
             return updated_node
         
-        # Handle PascalCase names - assume they're class calls and normalize them
+        # Handle underscore-prefixed PascalCase names (e.g., _PrivateClass, __DunderThing__)
+        if _is_underscore_prefixed_pascalcase(name):
+            new_name = to_pascal_case(name)
+            if name != new_name:
+                # Store the rename in current scope for future references
+                self.renamed_vars[-1][name] = new_name
+                return updated_node.with_changes(value=new_name)
+            return updated_node
+        
+        # Handle regular PascalCase names - assume they're class calls and normalize them
         if name and name[0].isupper():
             new_name = to_pascal_case(name)
             if name != new_name:

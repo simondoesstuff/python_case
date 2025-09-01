@@ -4,7 +4,7 @@ import tempfile
 from pathlib import Path
 
 from snake_shift.core import refactor_source, refactor_directory
-from snake_shift.naming import to_pascal_case, to_snake_case
+from snake_shift.naming import to_pascal_case, to_snake_case, _is_underscore_prefixed_pascalcase
 from snake_shift.file_operations import (
     should_rename_file, get_new_file_path, collect_file_renames, execute_file_renames
 )
@@ -25,7 +25,40 @@ def test_to_pascal_case():
     assert to_pascal_case("helloWorld") == "HelloWorld"
     assert to_pascal_case("Hello_World") == "HelloWorld"
     assert to_pascal_case("") == ""
-    assert to_pascal_case("__init__") == "Init"
+    assert to_pascal_case("__init__") == "__Init__"
+    
+    # Test underscore-prefixed cases
+    assert to_pascal_case("_private_class") == "_PrivateClass"
+    assert to_pascal_case("_WeirdCamelCase") == "_WeirdCamelCase"  
+    assert to_pascal_case("__dunder_class__") == "__DunderClass__"
+    assert to_pascal_case("_XMLParser") == "_Xmlparser"
+    assert to_pascal_case("__HTTPClient__") == "__Httpclient__"
+
+
+def test_is_underscore_prefixed_pascalcase():
+    """Test the helper function for detecting underscore-prefixed PascalCase."""
+    # Should return True for underscore-prefixed PascalCase
+    assert _is_underscore_prefixed_pascalcase("_PrivateClass") == True
+    assert _is_underscore_prefixed_pascalcase("__DunderClass__") == True
+    assert _is_underscore_prefixed_pascalcase("_XMLParser") == True
+    assert _is_underscore_prefixed_pascalcase("__HTTPClient__") == True
+    
+    # Should return False for regular PascalCase
+    assert _is_underscore_prefixed_pascalcase("PrivateClass") == False
+    assert _is_underscore_prefixed_pascalcase("XMLParser") == False
+    
+    # Should return False for snake_case
+    assert _is_underscore_prefixed_pascalcase("_private_var") == False
+    assert _is_underscore_prefixed_pascalcase("__internal_var__") == False
+    assert _is_underscore_prefixed_pascalcase("regular_var") == False
+    
+    # Should return False for edge cases
+    assert _is_underscore_prefixed_pascalcase("_") == False
+    assert _is_underscore_prefixed_pascalcase("__") == False
+    assert _is_underscore_prefixed_pascalcase("_a") == False
+    assert _is_underscore_prefixed_pascalcase("__a__") == False
+    assert _is_underscore_prefixed_pascalcase("") == False
+    assert _is_underscore_prefixed_pascalcase("_123") == False
 
 
 def test_external_library_preservation():
