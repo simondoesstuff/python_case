@@ -177,43 +177,22 @@ refactor_directory(
 - PascalCase imports: `from typing import Dict` stays `Dict`
 - External attributes: `model.fit()` stays `model.fit()`
 
-## Architecture
-
-The codebase is modularized for clarity and maintainability:
-
-```
-src/snake_shift/
-    core.py              # Main refactoring logic
-    naming.py            # Naming convention utilities
-    module_detection.py  # External vs internal module detection
-    transformer.py       # LibCST transformation logic
-    file_operations.py   # File and directory operations
-    cli.py              # Command line interface
-```
-
-## Requirements
-
-- Python 3.13+ (it can refactor other versions too)
-- libcst
-- typer (for CLI)
-- rich (for progress bars and colored output)
-- **Or, use UV**
-
 ## Contributing
 
 Contributions are welcome!
 
-### Running Tests
+### Building
 
 ```bash
-# Run all tests (using uv)
+# run tests with,
 uv run pytest
 
-# Run specific test
-uv run pytest tests/test_rename.py::test_external_library_preservation -v
+# or just set up the environment,
+uv sync
 
-# Run with coverage
-uv run pytest --cov=snake_shift
+# or if you don't have UV,
+pip install -r requirements.txt
+pytest  # tests
 ```
 
 ## License
