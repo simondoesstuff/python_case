@@ -13,6 +13,7 @@ A powerful Python refactoring tool that converts camelCase _codebases_ to python
 - **Smart Environment Detection** - Automatically distinguishes between internal and external modules
 - **Aggressive Refactoring** - Converts entire codebases while preserving external library APIs
 - **File & Directory Renaming** - Renames files and directories to match pythonic conventions
+  - Ignores non-code directories.
 - **Gitignore Integration** - Respects .gitignore patterns and includes sensible defaults
 - **PascalCase Preservation** - Keeps class names and type imports in PascalCase
 - **LibCST-Powered** - Uses concrete syntax trees for accurate code transformation
