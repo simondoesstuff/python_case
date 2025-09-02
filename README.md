@@ -85,9 +85,8 @@ Unlike other tools that use hardcoded library lists, snake-shift intelligently d
 
 With `--rename-files`:
 
-- `myModule.py` ? `my_module.py`
-- `dataUtils/` ? `data_utils/`
-- `MyClass.py` ? `MyClass.py` (PascalCase preserved)
+- `myModule.py` $\to$ `my_module.py`
+- `dataUtils/` $\to$ `data_utils/`
 
 ## Installation
 
