@@ -1,9 +1,7 @@
-Not yet on pypi
-
 # Snake Shift
 
 [![Tests](https://img.shields.io/badge/tests-95%2F64%20passing-brightgreen)](https://github.com/simondoesstuff/snake_shift)
-[![Python](https://img.shields.io/badge/python-3.13%2B-blue)](https://python.org)
+[![Python](https://img.shields.io/badge/python-3.9%2B-blue)](https://python.org)
 [![License](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 
 A powerful Python refactoring tool that converts camelCase _codebases_ to pythonic naming conventions while intelligently preserving external library calls.
