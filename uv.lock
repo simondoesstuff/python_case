@@ -760,7 +760,7 @@ wheels = [
 
 [[package]]
 name = "snake-shift"
-version = "1.0.0"
+version = "1.0.2"
 source = { editable = "." }
 dependencies = [
     { name = "libcst" },

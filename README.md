@@ -1,6 +1,6 @@
 # Snake Shift
 
-[![Tests](https://img.shields.io/badge/tests-95%2F64%20passing-brightgreen)](https://github.com/simondoesstuff/snake_shift)
+[![Tests](https://img.shields.io/badge/tests-95%2F95%20passing-brightgreen)](https://github.com/simondoesstuff/snake_shift)
 [![Python](https://img.shields.io/badge/python-3.9%2B-blue)](https://python.org)
 [![License](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 
