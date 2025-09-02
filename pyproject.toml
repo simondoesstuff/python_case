@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "snake-shift"
-version = "1.0.0"
+version = "1.0.1"
 description = "Smart codebase refactor from camelCase to pythonic snake_case"
 readme = "README.md"
 license = "MIT"
